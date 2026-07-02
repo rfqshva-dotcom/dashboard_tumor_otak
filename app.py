@@ -483,30 +483,23 @@ RESULT_TIER_COLOR = {
 }
 
 # ══════════════════════════════════════════════════════════════════════════
-# Sidebar
+# Sidebar — bagian header (statis, aman dirender di awal)
 # ══════════════════════════════════════════════════════════════════════════
 with st.sidebar:
     st.markdown("### 🧠 Brain MRI Classifier")
     st.caption("Alat bantu skrining citra MRI otak")
     st.markdown("---")
-    st.markdown("#### 🕘 Riwayat Analisis")
 
-    if st.session_state.history:
-        if st.button("🗑️ Bersihkan Riwayat", use_container_width=True):
-            st.session_state.history = []
-            st.rerun()
-        for item in reversed(st.session_state.history[-8:]):
-            st.markdown(f"""
-            <div class="hist-item">
-                <div class="hname">{item['label']}</div>
-                <div class="hmeta">{item['confidence']:.1f}% keyakinan · {item['time']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.caption("Belum ada riwayat analisis pada sesi ini.")
-
-    st.markdown("---")
-    st.caption("⚠️ Hasil klasifikasi bersifat bantu skrining dan bukan pengganti diagnosis dokter.")
+# Catatan: bagian "Riwayat Analisis" SENGAJA dirender di akhir file
+# (lihat blok "Sidebar — Riwayat Analisis" paling bawah), bukan di sini.
+# Alasannya: Streamlit menjalankan script dari atas ke bawah dalam satu
+# kali run. Kalau riwayat dirender di sini (sebelum proses upload &
+# prediksi di bawah selesai), maka hasil klasifikasi yang BARU SAJA
+# diunggah belum sempat masuk ke st.session_state.history saat sidebar
+# ini digambar — jadi baru muncul setelah ada interaksi/rerun berikutnya.
+# Dengan memindahkan render riwayat ke akhir script (setelah
+# session_state.history di-update), hasil baru langsung tampil di
+# sidebar pada run yang sama, tanpa jeda.
 
 # ══════════════════════════════════════════════════════════════════════════
 # Hero
@@ -718,3 +711,30 @@ else:
         'Alat bantu skrining, bukan pengganti diagnosis medis</div>',
         unsafe_allow_html=True
     )
+
+# ══════════════════════════════════════════════════════════════════════════
+# Sidebar — Riwayat Analisis
+# Dirender di SINI (akhir script), setelah st.session_state.history
+# sudah pasti ter-update oleh proses upload/prediksi di atas, sehingga
+# hasil klasifikasi terbaru langsung muncul di sidebar tanpa perlu
+# interaksi/rerun tambahan.
+# ══════════════════════════════════════════════════════════════════════════
+with st.sidebar:
+    st.markdown("#### 🕘 Riwayat Analisis")
+
+    if st.session_state.history:
+        if st.button("🗑️ Bersihkan Riwayat", use_container_width=True):
+            st.session_state.history = []
+            st.rerun()
+        for item in reversed(st.session_state.history[-8:]):
+            st.markdown(f"""
+            <div class="hist-item">
+                <div class="hname">{item['label']}</div>
+                <div class="hmeta">{item['confidence']:.1f}% keyakinan · {item['time']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.caption("Belum ada riwayat analisis pada sesi ini.")
+
+    st.markdown("---")
+    st.caption("⚠️ Hasil klasifikasi bersifat bantu skrining dan bukan pengganti diagnosis dokter.")
