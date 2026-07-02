@@ -226,6 +226,24 @@ st.markdown("""
 
     #MainMenu, header, footer { visibility: hidden; }
 
+    /* FIX: tombol panah untuk membuka kembali sidebar (collapsedControl)
+       berada di dalam elemen <header>, jadi ikut hilang saat header
+       disembunyikan di atas. Paksa tombol ini tetap tampil & bisa diklik. */
+    [data-testid="collapsedControl"] {
+        visibility: visible !important;
+        display: flex !important;
+        opacity: 1 !important;
+        position: fixed;
+        top: 0.6rem;
+        left: 0.6rem;
+        z-index: 999999;
+        background: linear-gradient(135deg,#7C3AED,#C026D3);
+        border-radius: 10px;
+        padding: 4px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    [data-testid="collapsedControl"] svg { fill: #ffffff !important; }
+
     /* Dark background */
     .stApp {
         background: radial-gradient(circle at 15% 0%, #1B1035 0%, #0B0E1A 45%, #08090F 100%);
