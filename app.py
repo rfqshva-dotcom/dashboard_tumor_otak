@@ -224,16 +224,23 @@ st.markdown("""
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     h1, h2, h3, h4 { font-family: 'Poppins', sans-serif !important; }
 
-    #MainMenu, header, footer { visibility: hidden; }
+    #MainMenu, footer { visibility: hidden; }
+    header { visibility: hidden; height: 0; }
 
-    /* FIX: tombol panah untuk membuka kembali sidebar (collapsedControl)
-       berada di dalam elemen <header>, jadi ikut hilang saat header
-       disembunyikan di atas. Paksa tombol ini tetap tampil & bisa diklik. */
-    [data-testid="collapsedControl"] {
+    /* FIX: tombol panah untuk membuka kembali sidebar berada di dalam
+       elemen <header>, jadi ikut hilang saat header disembunyikan di atas.
+       Nama testid tombol ini berbeda-beda tergantung versi Streamlit:
+       - versi lama   -> [data-testid="collapsedControl"]
+       - versi baru   -> [data-testid="stExpandSidebarButton"]
+       - tombol tutup -> [data-testid="stSidebarCollapseButton"]
+       Kita paksa semuanya tetap tampil & bisa diklik, apa pun versinya. */
+    [data-testid="collapsedControl"],
+    [data-testid="stExpandSidebarButton"],
+    [data-testid="stSidebarCollapseButton"] {
         visibility: visible !important;
         display: flex !important;
         opacity: 1 !important;
-        position: fixed;
+        position: fixed !important;
         top: 0.6rem;
         left: 0.6rem;
         z-index: 999999;
@@ -242,7 +249,20 @@ st.markdown("""
         padding: 4px;
         box-shadow: 0 4px 14px rgba(0,0,0,0.4);
     }
-    [data-testid="collapsedControl"] svg { fill: #ffffff !important; }
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stExpandSidebarButton"] svg,
+    [data-testid="stSidebarCollapseButton"] svg {
+        fill: #ffffff !important;
+    }
+    /* Header yang MENGANDUNG tombol expand harus ikut dipaksa terlihat,
+       karena visibility:hidden pada induk tetap perlu izin ini agar
+       posisi fixed dari anak benar-benar dirender di beberapa browser. */
+    header:has([data-testid="stExpandSidebarButton"]),
+    header:has([data-testid="collapsedControl"]) {
+        visibility: visible !important;
+        height: auto !important;
+        background: transparent !important;
+    }
 
     /* Dark background */
     .stApp {
